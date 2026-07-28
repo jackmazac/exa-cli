@@ -8,6 +8,8 @@ import { tmpdir } from "node:os";
 
 import { describe, expect, it } from "vitest";
 
+import { CLI_VERSION } from "../../src/version.js";
+
 const testDirectory = dirname(fileURLToPath(import.meta.url));
 const repositoryRoot = resolve(testDirectory, "../..");
 
@@ -179,8 +181,7 @@ describe("exa CLI process contract", () => {
 
     const version = await runCli(["--version"], { EXA_API_KEY: "" });
     expect(version).toEqual({
-      stdout:
-        '{"version":1,"ok":true,"command":"cli","data":"4.0.0"}\n',
+      stdout: `{"version":1,"ok":true,"command":"cli","data":"${CLI_VERSION}"}\n`,
       stderr: "",
       exitCode: 0,
     });

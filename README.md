@@ -23,7 +23,7 @@ Download the archive for the host from the [latest release](https://github.com/j
 Example for macOS Apple Silicon:
 
 ```bash
-VERSION=4.0.0
+VERSION="$(gh release view --repo jackmazac/exa-cli --json tagName --jq '.tagName | ltrimstr("v")')"
 gh release download "v${VERSION}" \
   --repo jackmazac/exa-cli \
   --pattern "exa-v${VERSION}-darwin-arm64.tar.gz" \

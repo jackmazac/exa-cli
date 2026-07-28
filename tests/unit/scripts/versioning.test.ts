@@ -1,6 +1,10 @@
 import { spawnSync } from "node:child_process";
 import { describe, expect, test } from "vitest";
 
+import { CLI_VERSION } from "../../../src/version.js";
+
+const [major, minor] = CLI_VERSION.split(".").map(Number);
+
 function preview(bump: "major" | "minor"): {
   status: number | null;
   stdout: string;
@@ -29,8 +33,8 @@ describe("release versioning", () => {
     expect(result.status).toBe(0);
     expect(JSON.parse(result.stdout)).toEqual({
       bump: "minor",
-      currentVersion: "4.0.0",
-      nextVersion: "4.1.0",
+      currentVersion: CLI_VERSION,
+      nextVersion: `${major}.${minor + 1}.0`,
     });
   });
 
@@ -40,8 +44,8 @@ describe("release versioning", () => {
     expect(result.status).toBe(0);
     expect(JSON.parse(result.stdout)).toEqual({
       bump: "major",
-      currentVersion: "4.0.0",
-      nextVersion: "5.0.0",
+      currentVersion: CLI_VERSION,
+      nextVersion: `${major + 1}.0.0`,
     });
   });
 });

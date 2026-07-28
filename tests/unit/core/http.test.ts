@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 
 import { ExaHttpClient } from "../../../src/core/http.js";
 import { CliError } from "../../../src/core/errors.js";
+import { CLI_USER_AGENT } from "../../../src/version.js";
 
 async function withServer(
   handler: (request: IncomingMessage, response: ServerResponse) => void,
@@ -71,7 +72,7 @@ describe("ExaHttpClient", () => {
           apiKey: "secret-key",
           contentType: "application/json",
           accept: "application/json",
-          userAgent: "exa-cli/4.0.0",
+          userAgent: CLI_USER_AGENT,
           integration: "cli-search:caf%C3%A9%20source",
           body: { query: "native" },
         });
