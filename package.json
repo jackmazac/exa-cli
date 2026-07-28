@@ -1,6 +1,6 @@
 {
   "name": "@jackmazac/exa-cli",
-  "version": "4.1.0",
+  "version": "4.2.0",
   "description": "Stateless native JSON CLI and agent skills for Exa Search, Contents, and Agent",
   "type": "module",
   "repository": {
