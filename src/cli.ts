@@ -142,7 +142,7 @@ async function executeApiCommand(
   if (command.kind === "search") {
     const raw =
       command.inputPath.length > 0
-        ? readInputDocument(command.inputPath, command.command)
+        ? await readInputDocument(command.inputPath, command.command)
         : undefined;
     const request = buildSearchRequest(raw === undefined ? command : null, raw);
     diagnostic(command.verbose, "request search POST /search");
@@ -159,7 +159,7 @@ async function executeApiCommand(
   if (command.kind === "fetch") {
     const raw =
       command.inputPath.length > 0
-        ? readInputDocument(command.inputPath, command.command)
+        ? await readInputDocument(command.inputPath, command.command)
         : undefined;
     const request = buildFetchRequest(raw === undefined ? command : null, raw);
     diagnostic(command.verbose, "request fetch POST /contents");
@@ -176,7 +176,7 @@ async function executeApiCommand(
   if (command.kind === "agent.run") {
     const raw =
       command.inputPath.length > 0
-        ? readInputDocument(command.inputPath, command.command)
+        ? await readInputDocument(command.inputPath, command.command)
         : undefined;
     const request = buildAgentRunRequest(raw === undefined ? command : null, raw);
     diagnostic(command.verbose, "request agent.run POST /agent/runs");

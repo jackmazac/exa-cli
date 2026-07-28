@@ -38,10 +38,21 @@ export function parseInputDocument(document: string, command: CommandName): Json
   return object;
 }
 
-export function readInputDocument(path: string, command: CommandName): JsonObject {
+async function readStdinDocument(): Promise<string> {
+  const chunks: Uint8Array[] = [];
+  for await (const chunk of process.stdin) {
+    chunks.push(chunk);
+  }
+  return new TextDecoder().decode(Buffer.concat(chunks));
+}
+
+export async function readInputDocument(
+  path: string,
+  command: CommandName,
+): Promise<JsonObject> {
   let document = "";
   try {
-    document = readFileSync(path === "-" ? "/dev/stdin" : path, "utf8");
+    document = path === "-" ? await readStdinDocument() : readFileSync(path, "utf8");
   } catch {
     throw new CliError(
       "INVALID_INPUT",
