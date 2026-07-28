@@ -47,8 +47,17 @@ async function execute(
   child.stderr.on("data", (chunk: string) => {
     stderr += chunk;
   });
+  let stdinError: NodeJS.ErrnoException | null = null;
+  child.stdin.on("error", (error: NodeJS.ErrnoException) => {
+    if (error.code !== "EPIPE") {
+      stdinError = error;
+    }
+  });
   child.stdin.end(stdin);
   const [code] = (await once(child, "close")) as [number];
+  if (stdinError !== null) {
+    throw stdinError;
+  }
   return { stdout, stderr, exitCode: code };
 }
 
