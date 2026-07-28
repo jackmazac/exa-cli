@@ -7,11 +7,13 @@ describe("release system", () => {
       name: string;
       repository: { url: string };
       scripts: Record<string, string>;
+      engines: { node: string };
     };
     const builder = readFileSync("scripts/build-release-artifacts.ts", "utf8");
 
     expect(packageJson.name).toBe("@jackmazac/exa-cli");
     expect(packageJson.repository.url).toContain("jackmazac/exa-cli");
+    expect(packageJson.engines.node).toBe(">=18");
     expect(packageJson.scripts["version:major"]).toContain("bump-version.ts");
     expect(packageJson.scripts["version:minor"]).toContain("bump-version.ts");
     expect(packageJson.scripts["release:verify"]).toBeDefined();
