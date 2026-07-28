@@ -1,0 +1,73 @@
+{
+  "name": "@jackmazac/exa-cli",
+  "version": "4.0.0",
+  "description": "Stateless native JSON CLI and agent skills for Exa Search, Contents, and Agent",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jackmazac/exa-cli.git"
+  },
+  "homepage": "https://github.com/jackmazac/exa-cli#readme",
+  "bugs": {
+    "url": "https://github.com/jackmazac/exa-cli/issues"
+  },
+  "bin": {
+    "exa": "dist/exa"
+  },
+  "files": [
+    "artifacts",
+    "dist/exa",
+    "scripts/install.cjs",
+    "skills",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "exa",
+    "search",
+    "agent",
+    "cli",
+    "native",
+    "json"
+  ],
+  "author": "Jack Mazac",
+  "license": "MIT",
+  "scripts": {
+    "build": "npm run native:build",
+    "dev": "tsx src/cli.ts",
+    "typecheck": "tsc --noEmit -p tsconfig.test.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "native:coverage": "tsx scripts/assert-static-coverage.ts",
+    "native:build": "scriptc build src/cli.ts -o dist/exa",
+    "test:native": "tsx scripts/test-native.ts",
+    "release:artifacts": "tsx scripts/build-release-artifacts.ts",
+    "release:verify": "tsx scripts/verify-release.ts",
+    "version:major": "tsx scripts/bump-version.ts --write major",
+    "version:minor": "tsx scripts/bump-version.ts --write minor",
+    "version:check": "tsx scripts/check-version.ts",
+    "postinstall": "node scripts/install.cjs",
+    "ci": "npm run version:check && npm run typecheck && npm run test && npm run native:coverage && npm run native:build && npm run test:native",
+    "prepublishOnly": "npm run ci"
+  },
+  "devDependencies": {
+    "@types/node": "24.13.3",
+    "@vitest/coverage-v8": "4.1.5",
+    "@zigc/cli": "0.16.0",
+    "scriptc": "0.0.17",
+    "tsx": "4.20.6",
+    "typescript": "5.9.3",
+    "vitest": "4.1.5"
+  },
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "overrides": {
+    "postcss": "8.5.23",
+    "vite": "6.4.3"
+  }
+}

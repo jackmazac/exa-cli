@@ -1,0 +1,132 @@
+name: Release native CLI
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: Semantic version increment
+        required: true
+        type: choice
+        options:
+          - minor
+          - major
+
+permissions:
+  contents: write
+  id-token: write
+  attestations: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Build, attest, and publish immutable assets
+    runs-on: macos-14
+
+    steps:
+      - name: Checkout complete history
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event_name == 'workflow_dispatch' && 'main' || github.ref }}
+
+      - name: Setup Node.js 24
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24.x
+          cache: npm
+
+      - name: Install development dependencies
+        run: npm ci
+
+      - name: Scan complete history for secrets
+        uses: gitleaks/gitleaks-action@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Prepare manually requested major or minor version
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          BUMP: ${{ inputs.bump }}
+        run: |
+          npm run "version:${BUMP}"
+          VERSION="$(node -p "require('./package.json').version")"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package.json package-lock.json src/version.ts
+          git commit -m "release: v${VERSION}"
+          git tag -a "v${VERSION}" -m "v${VERSION}"
+          git push origin HEAD:main
+          git push origin "v${VERSION}"
+
+      - name: Validate release tag and version
+        id: release
+        run: |
+          VERSION="$(node -p "require('./package.json').version")"
+          TAG="v${VERSION}"
+          if [ "${GITHUB_EVENT_NAME}" = "push" ] && [ "${GITHUB_REF_NAME}" != "${TAG}" ]; then
+            echo "Tag ${GITHUB_REF_NAME} does not match package version ${TAG}." >&2
+            exit 1
+          fi
+          {
+            echo "version=${VERSION}"
+            echo "tag=${TAG}"
+            echo "commit=$(git rev-parse HEAD)"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Run authoritative native gates
+        run: npm run ci
+
+      - name: Build native archives, binary npm package, manifest, and checksums
+        env:
+          EXA_RELEASE_COMMIT: ${{ steps.release.outputs.commit }}
+        run: npm run release:artifacts
+
+      - name: Verify release ledger
+        run: npm run release:verify
+
+      - name: Attest native archives
+        uses: actions/attest@v4
+        with:
+          subject-path: "dist/release/exa-v*.tar.gz"
+
+      - name: Attest binary npm package
+        uses: actions/attest@v4
+        with:
+          subject-path: "dist/release/*.tgz"
+
+      - name: Attest release manifest
+        uses: actions/attest@v4
+        with:
+          subject-path: "dist/release/release-manifest.json"
+
+      - name: Attest checksum ledger
+        uses: actions/attest@v4
+        with:
+          subject-path: "dist/release/SHA256SUMS"
+
+      - name: Create draft release with every asset
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.release.outputs.tag }}
+        run: |
+          gh release create "$TAG" \
+            dist/release/exa-v*.tar.gz \
+            dist/release/*.tgz \
+            dist/release/release-manifest.json \
+            dist/release/SHA256SUMS \
+            --draft \
+            --verify-tag \
+            --generate-notes \
+            --title "$TAG"
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.release.outputs.tag }}
+        run: gh release edit "$TAG" --draft=false --latest
