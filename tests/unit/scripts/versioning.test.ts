@@ -9,7 +9,11 @@ function preview(bump: "major" | "minor"): {
   const result = spawnSync(
     process.execPath,
     ["node_modules/tsx/dist/cli.mjs", "scripts/bump-version.ts", "--dry-run", bump],
-    { cwd: process.cwd(), encoding: "utf8" },
+    {
+      cwd: process.cwd(),
+      encoding: "utf8",
+      env: { ...process.env, NODE_NO_WARNINGS: "1" },
+    },
   );
   return {
     status: result.status,

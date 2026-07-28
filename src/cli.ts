@@ -1,4 +1,4 @@
-import { writeFileSync } from "node:fs";
+import { appendFileSync } from "node:fs";
 
 import { parseArgs } from "./cli/args.js";
 import { readInputDocument } from "./cli/input.js";
@@ -120,7 +120,7 @@ function environmentValue(name: "EXA_API_KEY" | "EXA_SOURCE" | "EXA_API_BASE_URL
 
 function diagnostic(enabled: boolean, message: string): void {
   if (enabled) {
-    writeFileSync("/dev/stderr", `${message}\n`, "utf8");
+    appendFileSync("/dev/stderr", `${message}\n`);
   }
 }
 
@@ -262,7 +262,7 @@ function exitCodeFor(error: CliError): number {
 
 function emit(envelope: CliEnvelope, pretty: boolean): void {
   const compact = JSON.stringify(envelope);
-  writeFileSync("/dev/stdout", `${pretty ? prettyJson(compact) : compact}\n`, "utf8");
+  appendFileSync("/dev/stdout", `${pretty ? prettyJson(compact) : compact}\n`);
 }
 
 function indentation(level: number): string {
