@@ -51,11 +51,13 @@ Each release also contains `jackmazac-exa-cli-<version>.tgz`. It packages all th
 gh release download "v${VERSION}" \
   --repo jackmazac/exa-cli \
   --pattern "jackmazac-exa-cli-${VERSION}.tgz"
-npm install --global "./jackmazac-exa-cli-${VERSION}.tgz"
+npm install --global \
+  --allow-scripts=@jackmazac/exa-cli \
+  "./jackmazac-exa-cli-${VERSION}.tgz"
 exa --version
 ```
 
-Node.js is used only by the package installer. The installed `exa` command is the native executable.
+The explicit script approval allows the reviewed installer to select the host binary under current and future npm install-script policies. Node.js is used only by that installer; the installed `exa` command is native.
 
 ## Authentication
 
