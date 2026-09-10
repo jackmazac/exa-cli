@@ -58,7 +58,7 @@
     "scriptc": "0.0.17",
     "tsx": "4.20.6",
     "typescript": "5.9.3",
-    "vitest": "4.1.5"
+    "vitest": "4.1.11"
   },
   "engines": {
     "node": ">=18"
